@@ -79,12 +79,36 @@ function closeGroupImagePreview(){
 async function downloadGroupImageBlob(blob){
  if(!blob){$('status').textContent='画像の作成に失敗しました。';return}
  const fileName='危局強襲戦_全グループ.png';
- const url=URL.createObjectURL(blob);
- const link=document.createElement('a');
- link.href=url;link.download=fileName;link.rel='noopener';link.style.display='none';
- document.body.appendChild(link);link.click();link.remove();
- setTimeout(()=>URL.revokeObjectURL(url),10000);
- $('status').textContent='画像を保存しました。';
+ try{
+  // iPhone/iPadなど、<a download>が正常に動作しない環境では
+  // Web Share APIのファイル共有を使って「写真に保存」等へ渡せるようにする。
+  const ua=navigator.userAgent||'';
+  const isIOS=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(isIOS&&navigator.share&&navigator.canShare){
+   const file=new File([blob],fileName,{type:'image/png'});
+   if(navigator.canShare({files:[file]})){
+    await navigator.share({files:[file],title:'危局強襲戦 全グループ'});
+    $('status').textContent='画像を保存しました。';
+    return;
+   }
+  }
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;link.download=fileName;link.rel='noopener';link.style.display='none';
+  document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),30000);
+  $('status').textContent='画像を保存しました。';
+ }catch(e){
+  if(e&&e.name==='AbortError')return;
+  console.error(e);
+  // モバイルブラウザでダウンロードが制限された場合の最終フォールバック。
+  try{
+   const url=URL.createObjectURL(blob);
+   const w=window.open(url,'_blank');
+   if(w){$('status').textContent='画像を開きました。長押しして画像を保存してください。';setTimeout(()=>URL.revokeObjectURL(url),60000);return}
+  }catch(_){}
+  $('status').textContent='画像の保存に失敗しました。';
+ }
 }
 function showGroupImagePreview(blob){
  if(!blob){$('status').textContent='画像の作成に失敗しました。';return}
