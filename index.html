@@ -171,7 +171,7 @@ async function saveSelectedGroupImage(){
       windowHeight:document.documentElement.clientHeight,
       onclone:(doc)=>{
         const cloned=doc.getElementById('teams');
-        if(cloned){cloned.style.maxWidth=getComputedStyle(target).maxWidth;cloned.style.width=getComputedStyle(target).width;cloned.style.rowGap='8px';cloned.style.marginBottom='0';cloned.querySelectorAll('.groupLabel').forEach(el=>{el.style.marginTop='8px';el.style.marginBottom='4px'});}
+        if(cloned){cloned.style.maxWidth='none';cloned.style.width='1100px';cloned.style.gridTemplateColumns='repeat(3,minmax(0,1fr))';cloned.style.rowGap='8px';cloned.style.marginBottom='0';cloned.querySelectorAll('.groupLabel').forEach(el=>{el.style.marginTop='8px';el.style.marginBottom='4px'});}
       }
     });
     // 実際の画面をそのまま使い、外周だけ少し余白を追加する。
